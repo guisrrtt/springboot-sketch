@@ -12,6 +12,8 @@ import com.guiserretti.spring_boot_sketch.repositories.UserRepository;
 import com.guiserretti.spring_boot_sketch.services.exceptions.DatabaseException;
 import com.guiserretti.spring_boot_sketch.services.exceptions.ResourceNotFoundException;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class UserService {
 
@@ -45,9 +47,13 @@ public class UserService {
 	}
 
 	public User update(Long id, User obj) {
-		User entity = repository.getReferenceById(id);
-		updateData(entity, obj);
-		return repository.save(entity);
+		try {
+			User entity = repository.getReferenceById(id);
+			updateData(entity, obj);
+			return repository.save(entity);
+		} catch (EntityNotFoundException e) {
+			throw new ResourceNotFoundException(id);
+		}
 	}
 
 	private void updateData(User entity, User obj) {
